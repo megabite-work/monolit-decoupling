@@ -67,7 +67,6 @@ class Restaurant
     public function removeOrder(Order $order): static
     {
         if ($this->orders->removeElement($order)) {
-            // set the owning side to null (unless already changed)
             if ($order->getRestaurant() === $this) {
                 $order->setRestaurant(null);
             }

@@ -20,6 +20,6 @@ class CustomerController extends AbstractController
     #[Route('/order', methods: 'POST')]
     public function createOrder(#[MapRequestPayload] CreateOrderDto $dto): JsonResponse
     {
-        return $this->json(data: $this->customerService->createOrder($dto), status: Response::HTTP_CREATED);
+        return $this->json(data: $this->customerService->createOrder($dto), status: Response::HTTP_CREATED, context: ['groups' => 'api']);
     }
 }

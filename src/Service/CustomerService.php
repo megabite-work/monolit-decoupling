@@ -18,10 +18,9 @@ readonly class CustomerService
         private EntityManagerInterface $em
     ) {}
 
-    public function createOrder(CreateOrderDto $dto): array
+    public function createOrder(CreateOrderDto $dto): Order
     {
         $restaurant = $this->restaurantService->getRestaurant($dto->getRestaurantId());
-
         $order = (new Order())
             ->setRestaurant($restaurant)
             ->setStatus(Order::STATUS_NEW);
@@ -37,7 +36,7 @@ readonly class CustomerService
         $this->em->persist($order);
         $this->em->flush();
 
-        return ['id' => $order->getId()];
+        return $order;
     }
 
     public function changeOrderStatus(int $orderId, string $orderStatus): void

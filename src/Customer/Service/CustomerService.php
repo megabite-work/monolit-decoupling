@@ -50,5 +50,6 @@ readonly class CustomerService
             ?? throw new ErrorException('Order not found', Response::HTTP_BAD_REQUEST);
 
         $order->setStatus($orderStatus);
+        $this->customerEntityManager->flush();
     }
 }

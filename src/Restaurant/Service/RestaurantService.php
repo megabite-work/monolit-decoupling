@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Restaurant\Service;
 
+use App\Common\Dto\Order;
 use App\Common\Exception\ErrorException;
 use App\Restaurant\Entity\Restaurant;
 use App\Restaurant\Repository\RestaurantRepository;
@@ -19,7 +20,7 @@ readonly class RestaurantService
             ?? throw new ErrorException('Restaurant not found', Response::HTTP_BAD_REQUEST);
     }
 
-    public function acceptOrder(int $orderId): bool
+    public function acceptOrder(Order $orderDto): bool
     {
         return true;
     }

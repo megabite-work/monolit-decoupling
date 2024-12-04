@@ -61,6 +61,7 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-example}"
+      MYSQL_ROOT_HOST: "%"
       TZ: ${TZ:-UTC}
     volumes:
       - "db_data:/var/lib/mysql"

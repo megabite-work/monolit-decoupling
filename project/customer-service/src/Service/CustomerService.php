@@ -18,7 +18,7 @@ readonly class CustomerService
     public function __construct(
         private RestaurantServiceClient $restaurantServiceClient,
         private CourierServiceClient $courierServiceClient,
-        private EntityManagerInterface $customerEntityManager
+        private EntityManagerInterface $em
     ) {}
 
     public function createOrder(CreateOrderDto $dto): Order
@@ -28,8 +28,8 @@ readonly class CustomerService
             ->setRestaurantId($restaurant->getId())
             ->setStatus(Order::STATUS_NEW);
 
-        $this->customerEntityManager->persist($order);
-        $this->customerEntityManager->flush();
+        $this->em->persist($order);
+        $this->em->flush();
         $orderDto = new Orderdto($order->getId(), $order->getStatus(), $order->getRestaurantId(), $order->getDeliveryId());
         
         if ($this->restaurantServiceClient->acceptOrder($orderDto)) {
@@ -40,17 +40,17 @@ readonly class CustomerService
             $order->setStatus(Order::STATUS_DECLINED);
         }
         
-        $this->customerEntityManager->flush();
+        $this->em->flush();
 
         return $order;
     }
 
     public function changeOrderStatus(int $orderId, string $orderStatus): void
     {
-        $order = $this->customerEntityManager->find(Order::class, $orderId)
+        $order = $this->em->find(Order::class, $orderId)
             ?? throw new ErrorException('Order not found', Response::HTTP_BAD_REQUEST);
 
         $order->setStatus($orderStatus);
-        $this->customerEntityManager->flush();
+        $this->em->flush();
     }
 }

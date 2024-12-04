@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 readonly class CourierService
 {
-    public function __construct(private EntityManagerInterface $courierEntityManager) {}
+    public function __construct(private EntityManagerInterface $em) {}
 
     public function createDelivery(Order $orderDto): Delivery
     {
@@ -21,22 +21,22 @@ readonly class CourierService
             ->setStatus(Delivery::STATUS_NEW)
             ->setRelatedOrderId($orderDto->getId());
 
-        $this->courierEntityManager->persist($delivery);
-        $this->courierEntityManager->flush();
+        $this->em->persist($delivery);
+        $this->em->flush();
 
         return $delivery;
     }
 
     public function changeDeliveryStatus(ChangeDeliveryStatusDto $dto): Delivery
     {
-        $delivery = $this->courierEntityManager->find(Delivery::class, $dto->getId());
+        $delivery = $this->em->find(Delivery::class, $dto->getId());
 
         if (!$delivery || !$delivery->getRelatedOrderId()) {
             throw new ErrorException('Delivery or related order not found', Response::HTTP_BAD_REQUEST);
         }
 
         $delivery->setStatus($dto->getStatus());
-        $this->courierEntityManager->flush();
+        $this->em->flush();
 
         return $delivery;
     }

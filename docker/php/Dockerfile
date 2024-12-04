@@ -28,7 +28,6 @@ RUN apk add --no-cache \
     usermod -o -u ${PUID} -g www-data www-data
     
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
-COPY www.conf /usr/local/etc/php-fpm.d/www.conf
 COPY php.ini /usr/local/etc/php/php.ini
 COPY supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 

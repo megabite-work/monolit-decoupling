@@ -24,6 +24,8 @@ abstract class AbstractHttpClient
         private readonly HttpClientInterface $client,
         #[Autowire('%api.secret.key%')]
         private readonly string $apiSecretKey,
+        #[Autowire('%api.nginx.host%')]
+        private readonly string $nginxHost,
     ) {
         $this->serializer = new Serializer(normalizers: [new ObjectNormalizer()], encoders: [new JsonEncoder()]);
     }
@@ -34,7 +36,7 @@ abstract class AbstractHttpClient
             $this->validatePayload($payload);
         }
 
-        $host = getenv('COMPOSE_PROJECT_NAME') ? 'http://' . getenv('COMPOSE_PROJECT_NAME') . '-nginx/api/' : 'http://nginx/api/';
+        $host = "http://$this->nginxHost-nginx/api/";
 
         return $this->client->request(
             $method,

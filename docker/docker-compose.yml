@@ -1,0 +1,85 @@
+x-php-base: &php-base
+  build:
+    context: ./php
+    target: ${TARGET:-dev}
+    args:
+      - PUID=${PUID}
+      - PGID=${PGID}
+  image: ${COMPOSE_PROJECT_NAME}-php-fpm:1.0.0
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  restart: unless-stopped
+  working_dir: /usr/share/app
+  tty: true
+  environment:
+    TZ: ${TZ:-UTC}
+  depends_on:
+    - db
+
+services:
+  nginx:
+    container_name: ${COMPOSE_PROJECT_NAME}-nginx
+    build:
+      context: ./nginx
+    image: ${COMPOSE_PROJECT_NAME}-nginx:1.0.0
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    tty: true
+    environment:
+      TZ: ${TZ:-UTC}
+    ports:
+      - ${NGINX_HOST_HTTP_PORT}:80
+    volumes:
+      - ./../project/:/usr/share/app:rw
+    depends_on:
+      - courier-service
+      - customer-service
+      - restaurant-service
+
+  courier-service:
+    <<: *php-base
+    container_name: ${COMPOSE_PROJECT_NAME}-courier-service
+    volumes:
+      - ./../project/courier-service/:/usr/share/app:rw
+
+  customer-service:
+    <<: *php-base
+    container_name: ${COMPOSE_PROJECT_NAME}-customer-service
+    volumes:
+      - ./../project/customer-service/:/usr/share/app:rw
+
+  restaurant-service:
+    <<: *php-base
+    container_name: ${COMPOSE_PROJECT_NAME}-restaurant-service
+    volumes:
+      - ./../project/restaurant-service/:/usr/share/app:rw
+
+  db:
+    container_name: ${COMPOSE_PROJECT_NAME}-mysql
+    image: "mariadb:10.5.2"
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-example}"
+      TZ: ${TZ:-UTC}
+    volumes:
+      - "db_data:/var/lib/mysql"
+    command:
+      [
+        "mysqld",
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_unicode_ci",
+      ]
+
+  adminer:
+    container_name: ${COMPOSE_PROJECT_NAME}-adminer
+    image: adminer
+    restart: unless-stopped
+    ports:
+      - 8999:8080
+    environment:
+      ADMINER_DESIGN: dracula
+
+volumes:
+  db_data:
+    driver: local

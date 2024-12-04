@@ -34,9 +34,11 @@ abstract class AbstractHttpClient
             $this->validatePayload($payload);
         }
 
+        $host = getenv('COMPOSE_PROJECT_NAME') ? 'http://' . getenv('COMPOSE_PROJECT_NAME') . '-nginx/api/' : 'http://nginx/api/';
+
         return $this->client->request(
             $method,
-            'http://nginx/api/' . $this->getServiceName() . $uri,
+            $host . $this->getServiceName() . $uri,
             [
                 'query' => $query,
                 'body' => $this->serializer->serialize($requestBody, JsonEncoder::FORMAT),

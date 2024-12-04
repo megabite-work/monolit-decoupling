@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
+#[Route('/api/restaurant')]
 class SubRequestController extends AbstractController
 {
     #[Route('/service-restaurant/restaurants/{restaurantId}', methods: 'GET')]

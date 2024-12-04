@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[Route('/api/customer')]
 class SubRequestController extends AbstractController
 {
     #[Route('/service-customer/orders', methods: 'POST')]

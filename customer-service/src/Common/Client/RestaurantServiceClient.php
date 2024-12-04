@@ -8,35 +8,40 @@ use App\Common\Dto\Order;
 use App\Common\Dto\Restaurant;
 use RuntimeException;
 
-class RestaurantServiceClient extends AbstractSubRequestClient
+class RestaurantServiceClient extends AbstractHttpClient
 {
-   public function getRestaurant(int $restaurantId): ?Restaurant
-   {
-       $response = $this->sendServiceRequest('/service-restaurant/restaurants/'.$restaurantId);
+    public function getRestaurant(int $restaurantId): ?Restaurant
+    {
+        $response = $this->sendServiceRequest('/service-restaurant/restaurants/' . $restaurantId);
 
-       if (404 === $response->getStatusCode()) {
-           return null;
-       }
+        if (404 === $response->getStatusCode()) {
+            return null;
+        }
 
-       if (200 !== $response->getStatusCode()) {
-           throw new RuntimeException('Unexpected response code');
-       }
+        if (200 !== $response->getStatusCode()) {
+            throw new RuntimeException('Unexpected response code');
+        }
 
-       return $this->serializer->deserialize($response->getContent(), Restaurant::class, 'json');
-   }
+        return $this->serializer->deserialize($response->getContent(), Restaurant::class, 'json');
+    }
 
-   public function acceptOrder(Order $orderDto): bool
-   {
-       $response = $this->sendServiceRequest(
-           uri: '/service-restaurant/orders/actions/accept',
-           requestBody: $this->serializer->normalize($orderDto),
-           method: 'POST'
-       );
+    public function acceptOrder(Order $orderDto): bool
+    {
+        $response = $this->sendServiceRequest(
+            uri: '/service-restaurant/orders/actions/accept',
+            requestBody: $this->serializer->normalize($orderDto),
+            method: 'POST'
+        );
 
-       if (200 !== $response->getStatusCode()) {
-           throw new RuntimeException('Unexpected response code');
-       }
+        if (200 !== $response->getStatusCode()) {
+            throw new RuntimeException('Unexpected response code');
+        }
 
-       return $this->serializer->decode(data: $response->getContent(), format: 'json');
-   }
+        return $this->serializer->decode(data: $response->getContent(), format: 'json');
+    }
+
+    protected function getServiceName(): string
+    {
+        return 'restaurant';
+    }
 }

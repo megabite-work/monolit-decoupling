@@ -5,41 +5,47 @@ declare(strict_types=1);
 namespace App\Common\Client;
 
 use App\Common\Exception\ErrorException;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
-abstract class AbstractSubRequestClient
+abstract class AbstractHttpClient
 {
     public const IS_INTERNAL_REQUEST_ATTRIBUTE_KEY = 'is-internal-request';
 
     protected readonly Serializer $serializer;
 
-    public function __construct(private readonly HttpKernelInterface $httpKernel)
-    {
+    public function __construct(
+        private readonly HttpClientInterface $client,
+        #[Autowire('%api.secret.key%')]
+        private readonly string $apiSecretKey,
+    ) {
         $this->serializer = new Serializer(normalizers: [new ObjectNormalizer()], encoders: [new JsonEncoder()]);
     }
 
-    protected function sendServiceRequest(string $uri, array $query = [], array $requestBody = [], string $method = Request::METHOD_GET): Response
+    protected function sendServiceRequest(string $uri, array $query = [], array $requestBody = [], string $method = Request::METHOD_GET): ResponseInterface
     {
         foreach ([$query, $requestBody] as $payload) {
             $this->validatePayload($payload);
         }
 
-        $request = new Request(
-            query: $query,
-            request: $requestBody,
-            content: $this->serializer->encode($requestBody, 'json'),
+        return $this->client->request(
+            $method,
+            'http://nginx/api/' . $this->getServiceName() . $uri,
+            [
+                'query' => $query,
+                'body' => $this->serializer->serialize($requestBody, JsonEncoder::FORMAT),
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'X-Api-Secret' => $this->apiSecretKey,
+                ],
+            ]
         );
-
-        $request->setMethod($method);
-        $request->server->set('REQUEST_URI', $uri);
-        $request->attributes->set(self::IS_INTERNAL_REQUEST_ATTRIBUTE_KEY, true);
-
-        return $this->httpKernel->handle($request, HttpKernelInterface::SUB_REQUEST);
     }
 
     private function validatePayload($data): void
@@ -52,4 +58,6 @@ abstract class AbstractSubRequestClient
             }
         }
     }
+
+    abstract protected function getServiceName(): string;
 }

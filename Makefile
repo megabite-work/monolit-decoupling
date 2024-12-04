@@ -1,6 +1,5 @@
-include docker/.env
 # Executables (local)
-DOCKER_COMP = docker compose -f docker/docker-compose-${TARGET:-dev}.yml
+DOCKER_COMP = docker compose -f docker/docker-compose.yml
 
 # Docker containers
 PHP_CONT_COURIER = $(DOCKER_COMP) exec courier-service

@@ -19,11 +19,10 @@ class HideInternalApiListener
        
        if (0 !== $comparisonResult) {
            return;
-       }
-
-       $secretKey = $event->getRequest()->attributes->get(AbstractSubRequestClient::IS_INTERNAL_REQUEST_ATTRIBUTE_KEY);
-       
-       if (true !== $secretKey) {
+        }
+        
+        $secretKey = $event->getRequest()->attributes->get(AbstractSubRequestClient::IS_INTERNAL_REQUEST_ATTRIBUTE_KEY);
+        if (true !== $secretKey) {
            throw new NotFoundHttpException();
        }
    }

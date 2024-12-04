@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Courier\Service;
 
+use App\Common\Dto\Order;
 use App\Common\Exception\ErrorException;
 use App\Courier\Dto\ChangeDeliveryStatusDto;
 use App\Courier\Entity\Delivery;
@@ -14,11 +15,11 @@ readonly class CourierService
 {
     public function __construct(private EntityManagerInterface $courierEntityManager) {}
 
-    public function createDelivery(int $orderId): Delivery
+    public function createDelivery(Order $orderDto): Delivery
     {
         $delivery = (new Delivery())
             ->setStatus(Delivery::STATUS_NEW)
-            ->setRelatedOrderId($orderId);
+            ->setRelatedOrderId($orderDto->getId());
 
         $this->courierEntityManager->persist($delivery);
         $this->courierEntityManager->flush();

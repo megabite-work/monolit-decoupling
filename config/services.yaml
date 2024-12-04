@@ -16,9 +16,17 @@ services:
     App\:
         resource: '../src/'
         exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
+            - '../src/Courier/Entity/'
+            - '../src/Customer/Entity/'
+            - '../src/Restaurant/Entity/'
+            - '../src/Courier/Migrations/'
+            - '../src/Customer/Migrations/'
+            - '../src/Restaurant/Migrations/'
             - '../src/Kernel.php'
-
+    
+    # error_renderer:
+    #     class: Symfony\Component\ErrorHandler\ErrorRenderer\SerializerErrorRenderer
+    #     arguments:
+    #         $format: 'json'
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

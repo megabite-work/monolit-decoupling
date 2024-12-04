@@ -28,8 +28,10 @@ readonly class CustomerService
             ->setRestaurantId($restaurant->getId())
             ->setStatus(Order::STATUS_NEW);
 
+        $this->customerEntityManager->persist($order);
+        $this->customerEntityManager->flush();
         $orderDto = new Orderdto($order->getId(), $order->getStatus(), $order->getRestaurantId(), $order->getDeliveryId());
-            
+        
         if ($this->restaurantServiceClient->acceptOrder($orderDto)) {
             $order->setStatus(Order::STATUS_ACCEPTED);
             $delivery = $this->courierServiceClient->createDelivery($orderDto);
@@ -37,8 +39,7 @@ readonly class CustomerService
         } else {
             $order->setStatus(Order::STATUS_DECLINED);
         }
-
-        $this->customerEntityManager->persist($order);
+        
         $this->customerEntityManager->flush();
 
         return $order;

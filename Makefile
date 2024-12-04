@@ -1,18 +1,18 @@
 # Executables (local)
-DOCKER_COMP = docker compose -f docker/docker-compose.yml
+DC = docker compose -f docker/docker-compose.yml
 
 # Docker containers
-PHP_CONT_COURIER = $(DOCKER_COMP) exec courier-service
-PHP_CONT_CUSTOMER = $(DOCKER_COMP) exec customer-service
-PHP_CONT_RESTAURANT = $(DOCKER_COMP) exec restaurant-service
+PHP_DC_COURIER = $(DC) exec courier-service
+PHP_DC_CUSTOMER = $(DC) exec customer-service
+PHP_DC_RESTAURANT = $(DC) exec restaurant-service
 
 # Executables
-PHP_COURIER      = $(PHP_CONT_COURIER) php
-PHP_CUSTOMER      = $(PHP_CONT_CUSTOMER) php
-PHP_RESTAURANT      = $(PHP_CONT_RESTAURANT) php
-COMPOSER_COURIER = $(PHP_CONT_COURIER) composer
-COMPOSER_CUSTOMER = $(PHP_CONT_CUSTOMER) composer
-COMPOSER_RESTAURANT = $(PHP_CONT_RESTAURANT) composer
+PHP_COURIER      = $(PHP_DC_COURIER) php
+PHP_CUSTOMER      = $(PHP_DC_CUSTOMER) php
+PHP_RESTAURANT      = $(PHP_DC_RESTAURANT) php
+COMPOSER_COURIER = $(PHP_DC_COURIER) composer
+COMPOSER_CUSTOMER = $(PHP_DC_CUSTOMER) composer
+COMPOSER_RESTAURANT = $(PHP_DC_RESTAURANT) composer
 SYMFONY_COURIER  = $(PHP_COURIER) bin/console
 SYMFONY_CUSTOMER  = $(PHP_CUSTOMER) bin/console
 SYMFONY_RESTAURANT  = $(PHP_RESTAURANT) bin/console
@@ -27,30 +27,30 @@ help: ## Outputs this help screen
 
 ## —— Docker 🐳 ————————————————————————————————————————————————————————————————
 build: ## Builds the Docker images
-	@$(DOCKER_COMP) build --pull --no-cache
+	@$(DC) build --pull --no-cache
 
 up: ## Start the docker hub in detached mode (no logs)
-	@$(DOCKER_COMP) up --detach
+	@$(DC) up --detach
 
 start: build up ## Build and start the containers
 
 down: ## Stop the docker hub
-	@$(DOCKER_COMP) down --remove-orphans
+	@$(DC) down --remove-orphans
 
 logs: ## Show live logs
-	@$(DOCKER_COMP) logs --tail=50 --follow
+	@$(DC) logs --tail=50 --follow
 
 sh: ## Connect to the PHP FPM container
-	@$(PHP_CONT_COURIER) sh
+	@$(PHP_DC_COURIER) sh
 
 bash_courier: ## Connect to the PHP FPM container
-	@$(PHP_CONT_COURIER) bash
+	@$(PHP_DC_COURIER) bash
 
 bash_customer: ## Connect to the PHP FPM container
-	@$(PHP_CONT_CUSTOMER) bash
+	@$(PHP_DC_CUSTOMER) bash
 
 bash_restaurant: ## Connect to the PHP FPM container
-	@$(PHP_CONT_RESTAURANT) bash
+	@$(PHP_DC_RESTAURANT) bash
 
 composer_courier: ## Run composer, pass the parameter "c=" to run a given command, example: make composer c='req symfony/orm-pack'
 	@$(eval c ?=)
@@ -88,22 +88,22 @@ sf_restaurant: ## List all Symfony commands or pass the parameter "c=" to run a 
 	@$(eval c ?=)
 	@$(SYMFONY_RESTAURANT) $(c)
 
-db_courier: c=doctrine:database:create --if-not-exists -c courier
+db_courier: c=doctrine:database:create --if-not-exists
 db_courier: sf_courier
 
-db_customer: c=doctrine:database:create --if-not-exists -c customer
+db_customer: c=doctrine:database:create --if-not-exists
 db_customer: sf_customer
 
-db_restaurant: c=doctrine:database:create --if-not-exists -c restaurant
+db_restaurant: c=doctrine:database:create --if-not-exists
 db_restaurant: sf_restaurant
 
-courier_migration: c=doctrine:migrations:migrate -n --em courier --configuration config/doctrine_migrations_courier.yaml
+courier_migration: c=doctrine:migrations:migrate -n
 courier_migration: sf_courier
 
-customer_migration: c=doctrine:migrations:migrate -n --em customer --configuration config/doctrine_migrations_customer.yaml
+customer_migration: c=doctrine:migrations:migrate -n
 customer_migration: sf_customer
 
-restaurant_migration: c=doctrine:migrations:migrate -n --em restaurant --configuration config/doctrine_migrations_restaurant.yaml
+restaurant_migration: c=doctrine:migrations:migrate -n
 restaurant_migration: sf_restaurant
 
 fixture: c=doctrine:fixtures:load -n

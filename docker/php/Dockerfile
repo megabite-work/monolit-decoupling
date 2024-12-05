@@ -3,6 +3,9 @@ FROM php:8.2-fpm-alpine3.20 AS base
 ARG PUID=1000
 ARG PGID=1000
 
+COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+COPY php.ini /usr/local/etc/php/php.ini
+
 RUN apk add --no-cache \
     curl \
     git \
@@ -16,19 +19,22 @@ RUN apk add --no-cache \
     libzip-dev \
     icu-dev \
     shadow \
+    rabbitmq-c-dev \
+    openssl-dev \
     --update linux-headers && \
+    pecl install amqp && \
+    docker-php-ext-enable amqp && \
     docker-php-ext-configure intl && \
     docker-php-ext-install \
     intl \
     mysqli \
     pdo_mysql \
     mbstring \
+    pcntl \
     zip && \
     groupmod -o -g ${PGID} www-data && \
     usermod -o -u ${PUID} -g www-data www-data
     
-COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
-COPY php.ini /usr/local/etc/php/php.ini
 COPY supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 
 ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]

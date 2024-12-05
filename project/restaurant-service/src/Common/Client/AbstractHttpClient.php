@@ -16,8 +16,6 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 abstract class AbstractHttpClient
 {
-    public const IS_INTERNAL_REQUEST_ATTRIBUTE_KEY = 'is-internal-request';
-
     protected readonly Serializer $serializer;
 
     public function __construct(

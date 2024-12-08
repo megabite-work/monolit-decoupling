@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Common\Client\CustomerServiceClient;
 use App\Dto\ChangeDeliveryStatusDto;
 use App\Service\CourierService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,13 +17,10 @@ class CourierController extends AbstractController
     public function __construct(private readonly CourierService $courierService) {}
 
     #[Route('/delivery', methods: 'PATCH')]
-    public function changeDeliveryStatus(#[MapRequestPayload] ChangeDeliveryStatusDto $dto, CustomerServiceClient $customerServiceClient): JsonResponse
+    public function changeDeliveryStatus(#[MapRequestPayload] ChangeDeliveryStatusDto $dto): JsonResponse
     {
-        $delivery = $this->courierService->changeDeliveryStatus($dto);
-        $customerServiceClient->changeOrderStatus($delivery->getRelatedOrderId(), $delivery->getStatus());
-        
         return $this->json(
-            data: $delivery,
+            data: $this->courierService->changeDeliveryStatus($dto),
             context: ['groups' => 'api']
         );
     }

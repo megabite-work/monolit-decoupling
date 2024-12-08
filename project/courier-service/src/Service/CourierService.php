@@ -4,18 +4,24 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Common\Dto\Order;
+use App\Common\Dto\Delivery as DeliveryDto;
+use App\Common\Dto\Order as OrderDto;
 use App\Common\Exception\ErrorException;
+use App\Common\Message\DeliveryStatusChanged;
 use App\Dto\ChangeDeliveryStatusDto;
 use App\Entity\Delivery;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 readonly class CourierService
 {
-    public function __construct(private EntityManagerInterface $em) {}
+    public function __construct(
+        private EntityManagerInterface $em,
+        private MessageBusInterface $messageBus
+    ) {}
 
-    public function createDelivery(Order $orderDto): Delivery
+    public function createDelivery(OrderDto $orderDto): Delivery
     {
         $delivery = (new Delivery())
             ->setStatus(Delivery::STATUS_NEW)
@@ -37,6 +43,9 @@ readonly class CourierService
 
         $delivery->setStatus($dto->getStatus());
         $this->em->flush();
+
+        $deliveryDto = new DeliveryDto($delivery->getId(),$delivery->getStatus(),$delivery->getRelatedOrderId());
+        $this->messageBus->dispatch(new DeliveryStatusChanged($deliveryDto));
 
         return $delivery;
     }

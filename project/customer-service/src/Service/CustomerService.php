@@ -4,53 +4,44 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Common\Client\CourierServiceClient;
-use App\Common\Client\RestaurantServiceClient;
+use App\Common\Dto\Delivery as DeliveryDto;
 use App\Common\Dto\Order as OrderDto;
 use App\Common\Exception\ErrorException;
+use App\Common\Message\OrderCreated;
 use App\Dto\CreateOrderDto;
 use App\Entity\Order;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 readonly class CustomerService
 {
     public function __construct(
-        private RestaurantServiceClient $restaurantServiceClient,
-        private CourierServiceClient $courierServiceClient,
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
+        private MessageBusInterface $messageBus,
     ) {}
 
     public function createOrder(CreateOrderDto $dto): Order
     {
-        $restaurant = $this->restaurantServiceClient->getRestaurant($dto->getRestaurantId());
         $order = (new Order())
-            ->setRestaurantId($restaurant->getId())
+            ->setRestaurantId($dto->getRestaurantId())
             ->setStatus(Order::STATUS_NEW);
 
         $this->em->persist($order);
         $this->em->flush();
+        
         $orderDto = new Orderdto($order->getId(), $order->getStatus(), $order->getRestaurantId(), $order->getDeliveryId());
-        
-        if ($this->restaurantServiceClient->acceptOrder($orderDto)) {
-            $order->setStatus(Order::STATUS_ACCEPTED);
-            $delivery = $this->courierServiceClient->createDelivery($orderDto);
-            $order->setDeliveryId($delivery->getId());
-        } else {
-            $order->setStatus(Order::STATUS_DECLINED);
-        }
-        
-        $this->em->flush();
+        $this->messageBus->dispatch(new OrderCreated($orderDto));
 
         return $order;
     }
 
-    public function changeOrderStatus(int $orderId, string $orderStatus): void
+    public function changeOrderStatus(DeliveryDto $deliveryDto): void
     {
-        $order = $this->em->find(Order::class, $orderId)
+        $order = $this->em->find(Order::class, $deliveryDto->getRelatedOrderId())
             ?? throw new ErrorException('Order not found', Response::HTTP_BAD_REQUEST);
 
-        $order->setStatus($orderStatus);
+        $order->setStatus($deliveryDto->getStatus());
         $this->em->flush();
     }
 }

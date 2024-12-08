@@ -11,9 +11,6 @@ framework:
           queues:
             customer-service: ~
 
-    routing:
-      'App\Common\Message\OrderCreated': async
-
     buses:
       default.bus:
         default_middleware:

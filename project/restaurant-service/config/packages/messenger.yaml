@@ -11,10 +11,6 @@ framework:
           queues:
             restaurant-service: ~
 
-    routing:
-      'App\Common\Message\OrderAccepted': async
-      'App\Common\Message\OrderDeclined': async
-
     buses:
       default.bus:
         default_middleware:

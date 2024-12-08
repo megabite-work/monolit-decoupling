@@ -9,7 +9,7 @@ use App\Repository\OrderRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler]
+#[AsMessageHandler(fromTransport: 'async', handles: DeliveryCreated::class)]
 readonly class DeliveryCreatedHandler
 {
     public function __construct(

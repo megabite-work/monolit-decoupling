@@ -10,7 +10,7 @@ use App\Repository\OrderRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler]
+#[AsMessageHandler(fromTransport: 'async', handles: OrderDeclined::class)]
 readonly class OrderDeclinedHandler
 {
     public function __construct(

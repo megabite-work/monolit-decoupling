@@ -11,7 +11,7 @@ use App\Service\CourierService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-#[AsMessageHandler]
+#[AsMessageHandler(fromTransport: 'async', handles: OrderAccepted::class)]
 readonly class OrderAcceptedHandler
 {
     public function __construct(

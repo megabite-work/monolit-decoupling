@@ -9,7 +9,7 @@ use App\Service\RestaurantService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-#[AsMessageHandler]
+#[AsMessageHandler(fromTransport: 'async', handles: OrderCreated::class)]
 readonly class OrderCreatedHandler
 {
     public function __construct(

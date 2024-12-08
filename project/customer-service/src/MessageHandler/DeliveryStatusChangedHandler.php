@@ -8,7 +8,7 @@ use App\Common\Message\DeliveryStatusChanged;
 use App\Service\CustomerService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler]
+#[AsMessageHandler(fromTransport: 'async', handles: DeliveryStatusChanged::class)]
 readonly class DeliveryStatusChangedHandler
 {
     public function __construct(private CustomerService $customerService) {}

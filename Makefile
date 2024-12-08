@@ -35,7 +35,7 @@ up: ## Start the docker hub in detached mode (no logs)
 start: build up ## Build and start the containers
 
 down: ## Stop the docker hub
-	@$(DC) down --remove-orphans
+	@$(DC) down -v --rmi="local" --remove-orphans
 
 logs: ## Show live logs
 	@$(DC) logs --tail=50 --follow
@@ -108,3 +108,8 @@ restaurant_migration: sf_restaurant
 
 fixture: c=doctrine:fixtures:load -n
 fixture: sf_restaurant
+
+db_wait:
+	@sleep 20
+
+up_local: build up vendor_courier vendor_customer vendor_restaurant db_wait db_courier db_customer db_restaurant courier_migration customer_migration restaurant_migration fixture

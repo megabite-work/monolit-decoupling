@@ -12,6 +12,7 @@ framework:
             courier-service: ~
 
     routing:
+        'App\Common\Message\DeliveryCreated': async
         'App\Common\Message\DeliveryStatusChanged': async
 
     buses:

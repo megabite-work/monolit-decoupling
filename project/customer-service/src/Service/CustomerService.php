@@ -30,7 +30,7 @@ readonly class CustomerService
         $this->em->persist($order);
         $this->em->flush();
         
-        $orderDto = new Orderdto($order->getId(), $order->getStatus(), $order->getRestaurantId(), $order->getDeliveryId());
+        $orderDto = new Orderdto($order->getId(), $order->getStatus(), $order->getRestaurantId());
         $this->messageBus->dispatch(new OrderCreated($orderDto));
 
         return $order;

@@ -34,7 +34,6 @@ class Order
     private ?int $restaurantId = null;
 
     #[ORM\Column(name: 'delivery_id', nullable: true)]
-    #[Groups(['api'])]
     private ?int $deliveryId = null;
 
     public function getId(): ?int
